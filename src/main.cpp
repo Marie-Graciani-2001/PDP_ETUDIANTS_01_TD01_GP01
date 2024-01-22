@@ -8,6 +8,9 @@
 
 DHT_Unified dht(SENSOR_PIN, DHT_TYPE);
 
+// Déclarer la variable pour stocker le temps de veille en microsecondes (5 secondes dans cet exemple)
+const uint64_t DEEP_SLEEP_TIME_US = 5e6;
+
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   Serial.begin(9600);
@@ -26,13 +29,8 @@ void setup() {
   Serial.print(F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));
   Serial.print(F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));
   Serial.println(F("------------------------------------"));
-}
 
-void loop() {
-  // Effectuez une mesure toutes les 5 secondes
-  delay(5000);
-
-  // Obtenir l'événement de température
+  // Mesurer la température et l'humidité
   sensors_event_t event;
   dht.temperature().getEvent(&event);
   
@@ -63,4 +61,14 @@ void loop() {
   } else {
     digitalWrite(LED_PIN, LOW); // Éteignez la LED sinon
   }
+
+  // Configuration du mode de veille "Deep sleep"
+  esp_sleep_enable_timer_wakeup(DEEP_SLEEP_TIME_US);
+
+  // Mettez l'ESP32 en mode deep sleep
+  esp_deep_sleep_start();
+}
+
+void loop() {
+  // La fonction loop ne doit rien contenir car toute la logique est déplacée dans la fonction setup
 }
